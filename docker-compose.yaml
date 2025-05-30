@@ -21,8 +21,8 @@ services:
     ports:
       - '172.17.0.1:60189:8080'
     volumes:
-      - '/var/lib/srv/$USER/docker/lklynet/dashly/latest/rootfs/data/dashly:/data'
-      - '/var/lib/srv/$USER/docker/db/sqlite/dashly/db.sqlite:/nginx/dashly.sqlite'
+      - '/var/lib/srv/$USER/docker/dashly/rootfs/data/dashly:/data'
+      - '/var/lib/srv/$USER/databases/sqlite/dashly/db.sqlite:/nginx/dashly.sqlite'
     networks:
       - dashly
 
