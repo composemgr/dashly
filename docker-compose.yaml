@@ -22,7 +22,7 @@ services:
       - '172.17.0.1:60189:8080'
     volumes:
       - './rootfs/data/dashly:/data'
-      - './rootfs/db/sqlite/dashly:/data/sqlite'
+      - './rootfs/data/db/sqlite/dashly:/data/sqlite'
     networks:
       - dashly
 
