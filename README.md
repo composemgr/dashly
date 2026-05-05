@@ -45,8 +45,8 @@ See `docker-compose.yaml` for complete list of configurable options.
 
 ## 📂 Volumes
 
-- `./rootfs/data/dashly` - Data storage
-- `./rootfs/data/db/sqlite/dashly` - Data storage
+- `./volumes/data/dashly` - Data storage
+- `./volumes/data/db/sqlite/dashly` - Data storage
 
 ## 🔍 Logging
 
