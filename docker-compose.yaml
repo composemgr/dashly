@@ -18,6 +18,8 @@ services:
     environment:
       TZ: ${TZ:-America/New_York}
       NGINX_DB_PATH: /data/sqlite/dashly.sqlite
+      CONTAINER_NAME: dashly-app
+      HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
     ports:
       - '172.17.0.1:60189:8080'
     volumes:
@@ -25,8 +27,30 @@ services:
       - './volumes/data/db/sqlite/dashly:/data/sqlite'
     networks:
       - dashly
+      - proxy
+      - cloudflare
+    labels:
+      - 'traefik.enable=true'
+      - 'cloudflare.enable=true'
+      - 'traefik.docker.network=proxy'
+      - 'cloudflare.service=http://dashly-app:8080'
+      - 'cloudflare.hostname=dashly.${CLOUDFLARE_ZONE_NAME:-}'
+      - 'traefik.http.routers.dashly-app.entrypoints=http'
+      - 'traefik.http.routers.dashly-app-secure.tls=true'
+      - 'traefik.http.routers.dashly-app.rule=Host($(${BASE_HOST_NAME:-$HOSTNAME}))'
+      - 'traefik.http.middlewares.dashly-app-https-redirect.redirectscheme.scheme=https'
+      - 'traefik.http.routers.dashly-app.middlewares=dashly-app-https-redirect'
+      - 'traefik.http.routers.dashly-app-secure.entrypoints=https'
+      - 'traefik.http.routers.dashly-app-secure.rule=Host($(${BASE_HOST_NAME:-$HOSTNAME}))'
+      - 'traefik.http.routers.dashly-app-secure.tls.certresolver=cloudflare'
+      - 'traefik.http.routers.dashly-app-secure.service=dashly-app'
+      - 'traefik.http.services.dashly-app.loadbalancer.server.port=8080'
 
 networks:
   dashly:
     name: dashly
     external: false
+  proxy:
+    external: true
+  cloudflare:
+    external: true
