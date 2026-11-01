@@ -1,0 +1,46 @@
+name: dashly
+x-logging: &default-logging
+  options:
+    max-size: '5m'
+    max-file: '1'
+  driver: json-file
+
+services:
+  app:
+    image: lklynet/dashly:latest
+    container_name: dashly-app
+    domainname: ${BASE_DOMAIN_NAME:-example.com}
+    hostname: ${BASE_HOST_NAME:-$HOSTNAME}
+    restart: always
+    pull_policy: always
+    logging: *default-logging
+    environment:
+      TZ: ${TZ:-America/New_York}
+      CONTAINER_NAME: dashly-app
+      HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
+      NGINX_DB_PATH: /data/sqlite/dashly.sqlite
+    volumes:
+      - './volumes/data/dashly:/data:z'
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.docker.network=traefik'
+      - 'traefik.http.routers.dashly-app.entrypoints=http'
+      - 'traefik.http.routers.dashly-app.rule=Host(`${BASE_HOST_NAME:-$HOSTNAME}`)'
+      - 'traefik.http.routers.dashly-app.middlewares=dashly-app-https-redirect'
+      - 'traefik.http.middlewares.dashly-app-https-redirect.redirectscheme.scheme=https'
+      - 'traefik.http.routers.dashly-app-secure.entrypoints=https'
+      - 'traefik.http.routers.dashly-app-secure.rule=Host(`${BASE_HOST_NAME:-$HOSTNAME}`)'
+      - 'traefik.http.routers.dashly-app-secure.tls.certresolver=cloudflare'
+      - 'traefik.http.routers.dashly-app-secure.service=dashly-app'
+      - 'traefik.http.services.dashly-app.loadbalancer.server.port=8080'
+    networks:
+      - dashly
+      - traefik
+
+
+networks:
+  dashly:
+    name: dashly
+    external: false
+  traefik:
+    external: true
