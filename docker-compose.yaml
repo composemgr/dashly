@@ -21,6 +21,12 @@ services:
       CONTAINER_NAME: dashly-app
       HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
       NGINX_DB_PATH: /data/sqlite/dashly.sqlite
+    healthcheck:
+      test: ['CMD', 'bash', '-c', 'exec 3<>/dev/tcp/127.0.0.1/8080']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
     ports:
       - '172.17.0.1:64150:8080'
     volumes:
